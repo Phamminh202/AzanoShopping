@@ -18,7 +18,7 @@ public class ApplicationSeeder  implements CommandLineRunner {
     @Autowired
     ProductSeeder productSeeder;
     @Autowired
-    UserSeeder userSeeder;
+    AccountSeeder accountSeeder;
     @Autowired
     OrderSeeder orderSeeder;
 
@@ -28,7 +28,7 @@ public class ApplicationSeeder  implements CommandLineRunner {
             logger.log(Level.SEVERE, "Start seeding");
             categorySeeder.generate();
             productSeeder.generate();
-            userSeeder.generate();
+            accountSeeder.generate();
             orderSeeder.generate();
         }
     }

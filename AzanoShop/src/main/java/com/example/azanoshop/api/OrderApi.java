@@ -25,7 +25,7 @@ public class OrderApi {
         return ResponseEntity.status(HttpStatus.OK).body(orderService.findShoppingCartByUserId(userId)) ;
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/add")
+    @RequestMapping(method = RequestMethod.POST, path = "/add")
     public ResponseEntity<?> CreateNew(@Param("userId") int userId, @Param("productId") String productId, @Param("qty") int qty){
         orderService.addShoppingCart(userId, productId, qty);
         return ResponseEntity.status(HttpStatus.OK).body(orderService.findShoppingCartByUserId(userId)) ;
