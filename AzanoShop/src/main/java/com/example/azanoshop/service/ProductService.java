@@ -1,54 +1,56 @@
 package com.example.azanoshop.service;
 
-import com.example.azanoshop.entity.Category;
 import com.example.azanoshop.entity.Product;
-import com.example.azanoshop.entity.seach.FilterParameter;
-import com.example.azanoshop.entity.seach.ProductSpecification;
-import com.example.azanoshop.entity.seach.SearchCriteria;
-import com.example.azanoshop.entity.seach.SearchCriteriaOperator;
+import com.example.azanoshop.entity.myenum.ProductStatus;
 import com.example.azanoshop.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ProductService {
-    final ProductRepository productRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    public Page<Product> findAllByActive(int page, int limit){
+        return productRepository.findAllByStatusEquals(ProductStatus.ACTIVE, PageRequest.of(page, limit));
     }
 
-    public Page<Product> findAll(FilterParameter param) {
-        Specification<Product> specification = Specification.where(null);
-        if (param.getKeyword() != null && param.getKeyword().length() > 0) {
-            SearchCriteria searchCriteria
-                    = new SearchCriteria("keyword", SearchCriteriaOperator.JOIN, param.getKeyword());
-            ProductSpecification filter = new ProductSpecification(searchCriteria);
-            specification = specification.and(filter);
-        }
-        if (param.getStatus() != 0) {
-            SearchCriteria searchCriteria
-                    = new SearchCriteria("status", SearchCriteriaOperator.EQUALS, param.getStatus());
-            ProductSpecification filter = new ProductSpecification(searchCriteria);
-            specification = specification.and(filter);
-        }
-        if (param.getUserId() != null) {
-            SearchCriteria searchCriteria
-                    = new SearchCriteria("category_id", SearchCriteriaOperator.EQUALS, param.getUserId());
-            ProductSpecification filter = new ProductSpecification(searchCriteria);
-            specification = specification.and(filter);
-        }
-        return productRepository.findAll(specification, PageRequest.of(param.getPage() - 1, param.getLimit()));
-    }
     public Optional<Product> findById(String id){
         return productRepository.findById(id);
     }
 
     public Product save(Product product){
-        return  productRepository.save(product);
+        return productRepository.save(product);
+    }
+
+    public void deleteById(String id){
+        productRepository.deleteById(id);
+    }
+
+    public Page<Product> findAll(int page, int limit) {
+        return productRepository.findAll(PageRequest.of(page, limit));
+    }
+
+    public Page<Product> searchByName(String search, int page, int limit){
+        return productRepository.findAllByNameContains(search, PageRequest.of(page, limit));
+    }
+
+    public Page<Product> searchByPrice(BigDecimal price, int page, int limit){
+        return productRepository.findAllByPriceEquals(price, PageRequest.of(page, limit));
+    }
+
+    public Page<Product> searchByCategoryName(String search, int page, int limit){
+        return productRepository.findAllByCategory_Name(search, PageRequest.of(page, limit));
+    }
+
+    public Page<Product> searchByPriceBetween(BigDecimal min, BigDecimal max, int page, int limit){
+        return productRepository.findAllByPriceBetween(min, max, PageRequest.of(page, limit));
     }
 }

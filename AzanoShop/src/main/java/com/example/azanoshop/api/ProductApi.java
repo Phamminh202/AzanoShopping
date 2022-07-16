@@ -1,66 +1,52 @@
 package com.example.azanoshop.api;
 
-import com.example.azanoshop.entity.Category;
 import com.example.azanoshop.entity.Product;
-import com.example.azanoshop.entity.seach.FilterParameter;
-import com.example.azanoshop.service.CategoryService;
 import com.example.azanoshop.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping(path = "api/v1/products")
 @CrossOrigin("*")
 public class ProductApi {
-    final ProductService productService;
-    final CategoryService categoryService;
+    @Autowired
+    private ProductService productService;
 
-    public ProductApi(ProductService productService, CategoryService categoryService) {
-        this.productService = productService;
-        this.categoryService = categoryService;
+    @RequestMapping(method = RequestMethod.GET)
+    public Page<Product> findAll(@RequestParam(name = "page", defaultValue = "0") int page,
+                                 @RequestParam(name = "limit", defaultValue = "10") int limit){
+        return productService.findAllByActive(page, limit);
     }
 
-    @RequestMapping(method = RequestMethod.POST,path = "/seach")
-    public ResponseEntity<?> findAllByOneObject(
-            @RequestBody FilterParameter param) {
-        Page<Product> result = this.productService.findAll(param);
-        return ResponseEntity.ok().body(result);
+    @RequestMapping(value = "search_by_name", method = RequestMethod.POST)
+    public Page<Product> SearchByName(@RequestParam(name = "searchStr", defaultValue = "") String search,
+                                      @RequestParam(name = "page", defaultValue = "0") int page,
+                                      @RequestParam(name = "limit", defaultValue = "10") int limit){
+        return productService.searchByName(search, page, limit);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> save(@RequestBody Product product){
-        return ResponseEntity.ok(productService.save(product));
+    @RequestMapping(value = "search_by_price", method = RequestMethod.POST)
+    public Page<Product> SearchByPrice(@RequestParam(name = "price", defaultValue = "0") BigDecimal price,
+                                       @RequestParam(name = "page", defaultValue = "0") int page,
+                                       @RequestParam(name = "limit", defaultValue = "10") int limit){
+        return productService.searchByPrice(price, page, limit);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, path = "{id}")
-    public ResponseEntity<Product> update(@PathVariable String id, @RequestBody Product products,@PathVariable String cateId) {
-        Optional<Product> optionalProduct = productService.findById(id);
-        Optional<Category> optionalCategory = categoryService.findById(cateId);
-        if (!optionalProduct.isPresent()) {
-            ResponseEntity.badRequest().build();
-        }
-        if (!optionalCategory.isPresent()) {
-            ResponseEntity.badRequest().build();
-        }
-        Product existProduct = optionalProduct.get();
-        existProduct.setId(products.getId());
-        existProduct.setName(products.getName());
-        existProduct.setPrice(products.getPrice());
-        existProduct.setDetail(products.getDetail());
-        existProduct.setStatus(products.getStatus());
-        existProduct.setCategory(optionalCategory.get());
-        return ResponseEntity.ok(productService.save(existProduct));
+    @RequestMapping(value = "search_by_category", method = RequestMethod.POST)
+    public Page<Product> SearchByCategory(@RequestParam(name = "cate", defaultValue = "") String search,
+                                          @RequestParam(name = "page", defaultValue = "0") int page,
+                                          @RequestParam(name = "limit", defaultValue = "10") int limit){
+        return productService.searchByCategoryName(search, page, limit);
     }
 
-    @RequestMapping(method = RequestMethod.GET,path = "{id}")
-    public ResponseEntity<?> findById(@PathVariable String id){
-        Optional<Product> optionalProduct = productService.findById(id);
-        if (!optionalProduct.isPresent()){
-            ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(optionalProduct.get());
+    @RequestMapping(value = "search_by_price_between", method = RequestMethod.POST)
+    public Page<Product> SearchByPriceBetween(@RequestParam(name = "min", defaultValue = "0") BigDecimal min,
+                                              @RequestParam(name = "max", defaultValue = "0") BigDecimal max,
+                                              @RequestParam(name = "page", defaultValue = "0") int page,
+                                              @RequestParam(name = "limit", defaultValue = "10") int limit){
+        return productService.searchByPriceBetween(min, max, page, limit);
     }
 }

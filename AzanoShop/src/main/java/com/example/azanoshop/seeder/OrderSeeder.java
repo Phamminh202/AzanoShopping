@@ -34,8 +34,8 @@ public class OrderSeeder {
         orders = new ArrayList<>();
         for (int i = 0; i < NUMBER_OF_ORDER; i++) {
             // lấy random user.
-            int randomUserIndex = NumberUtil.getRandomNumber(0, UserSeeder.users.size() - 1);
-            User user = UserSeeder.users.get(randomUserIndex);
+            int randomUserIndex = NumberUtil.getRandomNumber(0, AccountSeeder.accountList.size() - 1);
+            Account account = AccountSeeder.accountList.get(randomUserIndex);
             // Tạo mới đơn hàng.
             Order order = new Order();
             order.setId(UUID.randomUUID().toString());
@@ -51,7 +51,7 @@ public class OrderSeeder {
             }else {
                 order.setShoppingCart(true);
             }
-            order.setUserId(user.getId());
+            order.setUserId(account.getId());
             // Tạo danh sách order detail cho đơn hàng.
             Set<OrderDetail> orderDetails = new HashSet<>();
             // map này dùng để check sự tồn tại của sản phẩm trong order detail.
