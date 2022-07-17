@@ -1,52 +1,52 @@
 package com.example.azanoshop.api;
 
-import com.example.azanoshop.entity.Product;
+import com.example.azanoshop.repository.ProductRepository;
 import com.example.azanoshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-
 @RestController
-@RequestMapping(path = "api/v1/products")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:8081")
+@RequestMapping(path = "/api/v1")
 public class ProductApi {
+
     @Autowired
-    private ProductService productService;
+    ProductService productService;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public Page<Product> findAll(@RequestParam(name = "page", defaultValue = "0") int page,
-                                 @RequestParam(name = "limit", defaultValue = "10") int limit){
-        return productService.findAllByActive(page, limit);
+    @Autowired
+    private ProductRepository productRepository;
+
+    @RequestMapping(method = RequestMethod.GET, path = "/products")
+    public ResponseEntity<?> getList(
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "limit", defaultValue = "5") int limit,
+            @RequestParam(name = "name", defaultValue = "", required = false) String name) {
+        return ResponseEntity.ok(productService.findAll(
+                        PageRequest.of(page - 1, limit), name
+                )
+        );
     }
 
-    @RequestMapping(value = "search_by_name", method = RequestMethod.POST)
-    public Page<Product> SearchByName(@RequestParam(name = "searchStr", defaultValue = "") String search,
-                                      @RequestParam(name = "page", defaultValue = "0") int page,
-                                      @RequestParam(name = "limit", defaultValue = "10") int limit){
-        return productService.searchByName(search, page, limit);
-    }
 
-    @RequestMapping(value = "search_by_price", method = RequestMethod.POST)
-    public Page<Product> SearchByPrice(@RequestParam(name = "price", defaultValue = "0") BigDecimal price,
-                                       @RequestParam(name = "page", defaultValue = "0") int page,
-                                       @RequestParam(name = "limit", defaultValue = "10") int limit){
-        return productService.searchByPrice(price, page, limit);
-    }
-
-    @RequestMapping(value = "search_by_category", method = RequestMethod.POST)
-    public Page<Product> SearchByCategory(@RequestParam(name = "cate", defaultValue = "") String search,
-                                          @RequestParam(name = "page", defaultValue = "0") int page,
-                                          @RequestParam(name = "limit", defaultValue = "10") int limit){
-        return productService.searchByCategoryName(search, page, limit);
-    }
-
-    @RequestMapping(value = "search_by_price_between", method = RequestMethod.POST)
-    public Page<Product> SearchByPriceBetween(@RequestParam(name = "min", defaultValue = "0") BigDecimal min,
-                                              @RequestParam(name = "max", defaultValue = "0") BigDecimal max,
-                                              @RequestParam(name = "page", defaultValue = "0") int page,
-                                              @RequestParam(name = "limit", defaultValue = "10") int limit){
-        return productService.searchByPriceBetween(min, max, page, limit);
-    }
+//    @Autowired
+//    private ProductRepository productRepository;
+//
+//    @RequestMapping(method = RequestMethod.POST)
+//    public ResponseEntity<?> save(@RequestBody ProductDTO productDTO) {
+//        // tạo ra product từ productdto
+//        Product product = new Product();
+//        product.setName(productDTO.getName());
+//        product.setDescription(product.getDescription());
+//        product.setPrice(productDTO.getPrice());
+//        product.setSlug(StringHelper.toSlug(productDTO.getName()));
+//        product.setStatus(ProductSimpleStatus.ACTIVE);
+//        productRepository.save(product);
+//        productDTO.setId(product.getId());
+//        productDTO.setCreatedAt(product.getCreatedAt() == null ? "" : product.getCreatedAt().toString());
+//        productDTO.setUpdatedAt(product.getUpdatedAt() == null ? "" : product.getUpdatedAt().toString());
+//        productDTO.setStatus(product.getStatus().name());
+//        return new ResponseEntity<>(productDTO, HttpStatus.OK);
+//    }
 }

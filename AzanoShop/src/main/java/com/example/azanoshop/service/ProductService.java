@@ -1,56 +1,51 @@
 package com.example.azanoshop.service;
 
 import com.example.azanoshop.entity.Product;
-import com.example.azanoshop.entity.myenum.ProductStatus;
 import com.example.azanoshop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public Page<Product> findAllByActive(int page, int limit){
-        return productRepository.findAllByStatusEquals(ProductStatus.ACTIVE, PageRequest.of(page, limit));
+    public Map<String, Object> findAll(Pageable pageable, String name) {
+        Map<String, Object> responses = new HashMap<>();
+        if (name != null || name != ""){
+            Page<Product> pageTu = productRepository.findByNameContaining(pageable,name);
+            List<Product> list = pageTu.getContent();
+            responses.put("content",list); // chi tiết các phần tử được
+            responses.put("currentPage",pageTu.getNumber() + 1);// trang hiện tại
+            responses.put("totalItems",pageTu.getTotalElements()    );// tổng số phàn tử
+            responses.put("totalPage",pageTu.getTotalPages()); // tổng só trang
+        }else {
+        Page<Product> pageTu = productRepository.findAll(pageable);
+        List<Product> list = pageTu.getContent();
+        responses.put("content",list); // chi tiết các phần tử được
+        responses.put("currentPage",pageTu.getNumber() + 1);// trang hiện tại
+        responses.put("totalItems",pageTu.getTotalElements());// tổng số phàn tử
+        responses.put("totalPage",pageTu.getTotalPages()); // tổng só trang
+    }
+        return responses;
     }
 
-    public Optional<Product> findById(String id){
-        return productRepository.findById(id);
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(String.valueOf(id));
     }
 
-    public Product save(Product product){
+    public Product save(Product product) {
         return productRepository.save(product);
     }
 
-    public void deleteById(String id){
-        productRepository.deleteById(id);
-    }
-
-    public Page<Product> findAll(int page, int limit) {
-        return productRepository.findAll(PageRequest.of(page, limit));
-    }
-
-    public Page<Product> searchByName(String search, int page, int limit){
-        return productRepository.findAllByNameContains(search, PageRequest.of(page, limit));
-    }
-
-    public Page<Product> searchByPrice(BigDecimal price, int page, int limit){
-        return productRepository.findAllByPriceEquals(price, PageRequest.of(page, limit));
-    }
-
-    public Page<Product> searchByCategoryName(String search, int page, int limit){
-        return productRepository.findAllByCategory_Name(search, PageRequest.of(page, limit));
-    }
-
-    public Page<Product> searchByPriceBetween(BigDecimal min, BigDecimal max, int page, int limit){
-        return productRepository.findAllByPriceBetween(min, max, PageRequest.of(page, limit));
+    public void deleteById(Long id) {
+        productRepository.deleteById(String.valueOf(id));
     }
 }

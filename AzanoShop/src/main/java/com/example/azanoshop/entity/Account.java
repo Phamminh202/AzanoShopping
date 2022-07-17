@@ -1,33 +1,35 @@
 package com.example.azanoshop.entity;
 
-import com.example.azanoshop.entity.base.BaseEntity;
-import com.example.azanoshop.entity.myenum.AccountStatus;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.Set;
 
+@Entity
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "accounts")
-public class Account extends BaseEntity {
+public class Account {
     @Id
-//    @GeneratedValue(generator = "uuid")
-//    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String id;
-    private String username;
-    private String password;
-    private String fullname;
-    private String email;
-    private String phone;
-    private String address;
-    private String thumbnail;
-    @Lob
-    private String detail;
-    @Enumerated(EnumType.ORDINAL)
-    private AccountStatus status;
-    private int role;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+    private String username; // select * from account where username = "username"-> salt, passwordhash, passwordHash
+    private String password; // đã mã hoá. salt+passwordhash (md5, sha)
+    @ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(
+            name = "accounts_roles",
+            joinColumns = @JoinColumn(
+                    name = "account_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "role_id", referencedColumnName = "id"))
+    private Set<Role> roles;
+//    @Column(insertable = false, updatable = false)
+//    private int roleId;
+    private Date createdAt;
+    private Date updatedAt;
+    private int status;
+    private String verifyCode;
 }
