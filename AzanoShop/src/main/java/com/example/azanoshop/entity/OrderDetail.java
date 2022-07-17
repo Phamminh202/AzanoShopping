@@ -27,10 +27,10 @@ public class OrderDetail {
 
     @ManyToOne
     @MapsId("productId")
-    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "product_id", referencedColumnName = "productId", nullable = false)
     @JsonBackReference
     private Product product;
     // thông tin thêm.
     private Integer quantity;
-    private BigDecimal unitPrice; // tl; dr;
+    private BigDecimal unitPrice;
 }
